@@ -435,9 +435,16 @@ const Contact = () => {
             <div className="contact-details">
               <div><i className="fa-solid fa-envelope"></i> snekamuthirulan27@email.com</div>
               <div><i className="fa-solid fa-location-dot"></i> Tamil Nadu, Madurai, India.</div>
-              <div><i className="fa-brands fa-linkedin"></i><a href="https://www.linkedin.com/in/sneha-m-305444290">
-                https://www.linkedin.com/in/sneha-m-305444290
-              </a></div>
+              <div>
+                <i className="fa-brands fa-linkedin"></i>
+                <a
+                  href="https://www.linkedin.com/in/sneka-m-305444290/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  https://www.linkedin.com/in/sneka-m-305444290/
+                </a>
+              </div>
             </div>
           </div>
 
