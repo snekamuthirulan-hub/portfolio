@@ -12,7 +12,7 @@ const styles = `
 
   /* ── HEADER ── */
   .header {
-    position: fixed; top: 0; left: 0; width: 100%; padding: 20px 10%;
+    position: fixed; top: 0; left: 0; width: 100%; padding: 10px 10%;
     background: #051129; display: flex; justify-content: space-between;
     align-items: center; z-index: 100; box-shadow: 0 2px 20px rgba(0,238,255,0.1);
   }
