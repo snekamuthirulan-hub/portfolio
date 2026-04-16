@@ -260,7 +260,7 @@ const Home = () => {
           And I'm a{" "}
           <span>
             {typedText}
-            <span style={{ borderRight: "2px solid #0ef" }}>|</span>
+            <span style={{ borderRight: "2px solid #0ef" }}></span>
           </span>
         </h3>
         <p>
