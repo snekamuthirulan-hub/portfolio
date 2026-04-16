@@ -279,9 +279,6 @@ const Home = () => {
 /** About section */
 const About = () => (
   <section className="about" id="about">
-    <div className="about-img">
-      <img src="/sneka.png" alt="About Sneka" />
-    </div>
     <div className="about-text">
       <h2>About <span>Me</span></h2>
       <h4>MERN STACK Developer</h4>
