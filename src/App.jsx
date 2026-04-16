@@ -1,8 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 
-/* 
-   GLOBAL STYLES
- */
 const styles = `
   @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 
@@ -17,6 +14,7 @@ const styles = `
     align-items: center; z-index: 100; box-shadow: 0 2px 20px rgba(0,238,255,0.1);
   }
   .logo { font-size: 36px; color: #0ef; text-decoration: none; font-weight: 700; letter-spacing: 2px; opacity: 0; animation: slideRight 1s ease forwards; }
+  .navbar { display: flex; align-items: center; }
   .navbar a {
     display: inline-block; font-size: 16px; color: white; text-decoration: none;
     font-weight: 500; margin-left: 35px; opacity: 0; animation: slideTop .5s ease forwards;
@@ -24,23 +22,57 @@ const styles = `
   }
   .navbar a:hover { color: yellow; }
 
+  /* ── HAMBURGER ── */
+  .hamburger {
+    display: none; flex-direction: column; gap: 5px; cursor: pointer;
+    background: none; border: none; padding: 6px; z-index: 200;
+  }
+  .hamburger span {
+    display: block; width: 26px; height: 2px; background: #0ef;
+    border-radius: 2px; transition: all 0.35s ease;
+  }
+  .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  .hamburger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+  .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+  /* Mobile nav drawer */
+  .mobile-nav {
+    display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
+    background: rgba(5,17,41,0.97); flex-direction: column; justify-content: center;
+    align-items: center; gap: 28px; z-index: 150;
+  }
+  .mobile-nav.open { display: flex; }
+  .mobile-nav a {
+    font-size: 22px; color: #fff; text-decoration: none; font-weight: 500;
+    letter-spacing: 1px; transition: color 0.3s;
+  }
+  .mobile-nav a:hover { color: #0ef; }
+
+  /* ── THREE.JS CANVAS ── */
+  #three-canvas {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    pointer-events: none; z-index: 0;
+  }
+
   /* ── HOME ── */
   .home {
     position: relative; width: 100%; min-height: 100vh; display: flex;
     justify-content: space-between; align-items: center; padding: 70px 10% 0;
     background: radial-gradient(ellipse at 70% 50%, #0a2540 0%, #081b29 60%);
+    overflow: hidden;
   }
   .home::before {
     content: ''; position: absolute; inset: 0;
     background: radial-gradient(circle at 80% 50%, rgba(0,238,255,0.05) 0%, transparent 60%);
     pointer-events: none;
   }
-  .home-content { max-width: 600px; }
+  .home-content { max-width: 600px; position: relative; z-index: 1; }
   .home-content h3 { font-size: 26px; font-weight: 400; color: #ccc; opacity: 0; animation: slideRight 1s ease forwards; animation-delay: 0.3s; }
   .home-content h3.typed-line { margin-top: 8px; }
   .home-content h3 span { color: #0ef; }
   .home-content h1 { font-size: 56px; font-weight: 700; margin: 8px 0; line-height: 1.1; opacity: 0; animation: slideRight 1s ease forwards; animation-delay: 0.1s; }
   .home-content p { font-size: 18px; color: #aaa; margin-top: 15px; line-height: 1.7; opacity: 0; animation: slideLeft 1s ease forwards; animation-delay: 1s; }
+  .home-sci { position: relative; z-index: 1; }
   .home-sci a {
     display: inline-flex; justify-content: center; align-items: center; width: 44px; height: 44px;
     background: transparent; border: 2px solid #0ef; border-radius: 50%; font-size: 20px;
@@ -48,6 +80,7 @@ const styles = `
     opacity: 0; animation: slideLeft 1s ease forwards; animation-delay: calc(.2s * var(--i));
   }
   .home-sci a:hover { background: #0ef; color: #000; transform: translateY(-4px); box-shadow: 0 0 15px #0ef; }
+  .home-img { position: relative; z-index: 1; }
   .home-img img {
     width: 320px; height: 320px; border-radius: 50%; border: 3px solid #0ef;
     box-shadow: 0 0 20px #0ef, 0 0 60px rgba(0,238,255,0.3); object-fit: cover;
@@ -139,22 +172,92 @@ const styles = `
   @keyframes slideLeft  { 0% { transform: translateX(100px);  opacity: 0; } 100% { transform: translateX(0); opacity: 1; } }
   @keyframes slideTop   { 0% { transform: translateY(100px);  opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
 
-  /* ── RESPONSIVE ── */
-  @media (max-width: 768px) {
-    .home { flex-direction: column; text-align: center; padding-top: 120px; padding-bottom: 60px; }
-    .home-img { margin-top: 40px; }
-    .home-content h1 { font-size: 36px; }
-    .about { grid-template-columns: 1fr; text-align: center; }
-    .radial-grid { grid-template-columns: repeat(2, 1fr); }
-    .sub-title { font-size: 36px; }
-    .navbar a { font-size: 13px; margin-left: 15px; }
-    .logo { font-size: 24px; }
+  /* ══════════════════════════════════════════
+     MEDIA QUERIES — ENHANCED
+  ══════════════════════════════════════════ */
+
+  /* ── Tablet landscape / small desktop ── */
+  @media (max-width: 1024px) {
+    .header { padding: 10px 6%; }
+    .home { padding: 70px 6% 0; }
+    .about { padding: 80px 6%; }
+    .services-section { padding: 0 6% 80px; }
+    .skills-section { padding: 0 6% 80px; }
+    .contact-section { padding: 0 6% 100px; }
+    .home-content h1 { font-size: 46px; }
+    .home-img img { width: 280px; height: 280px; }
   }
-  @media (max-width: 480px) {
-    .header { padding: 16px 5%; }
-    .home, .about, .services-section, .skills-section, .contact-section { padding-left: 5%; padding-right: 5%; }
-    .home-content h1 { font-size: 28px; }
+
+  /* ── Tablet portrait ── */
+  @media (max-width: 768px) {
+    /* Show hamburger, hide desktop nav */
+    .hamburger { display: flex; }
+    .navbar { display: none; }
+
+    .header { padding: 14px 5%; }
+    .logo { font-size: 28px; }
+
+    .home {
+      flex-direction: column; text-align: center;
+      padding-top: 110px; padding-bottom: 60px; padding-left: 5%; padding-right: 5%;
+    }
+    .home-img { margin-top: 40px; order: -1; }
+    .home-img img { width: 220px; height: 220px; }
+    .home-content h1 { font-size: 36px; }
+    .home-content h3 { font-size: 20px; }
+    .home-content p { font-size: 16px; }
+    .home-sci { justify-content: center; display: flex; }
+
+    .about { grid-template-columns: 1fr; text-align: center; padding: 60px 5%; gap: 30px; }
+    .about-text h2 { font-size: 38px; }
+    .about-text h4 { font-size: 18px; }
+
+    .services-section { padding: 0 5% 60px; }
+    .services-list { grid-template-columns: 1fr; }
+
+    .skills-section { padding: 0 5% 60px; }
+    .container1 { min-width: unset; padding: 30px 20px; }
+    .radial-grid { grid-template-columns: repeat(2, 1fr); gap: 20px; }
+
+    .contact-section { padding: 0 5% 80px; }
+
+    .sub-title { font-size: 36px; padding: 60px 0 30px; }
+  }
+
+  /* ── Mobile large ── */
+  @media (max-width: 600px) {
+    .home-content h1 { font-size: 30px; }
+    .home-content h3 { font-size: 17px; }
+    .home-img img { width: 180px; height: 180px; }
+    .about-img img { width: 200px; height: 200px; }
+    .about-text h2 { font-size: 30px; }
     .sub-title { font-size: 28px; }
+    .radial-grid { grid-template-columns: repeat(2, 1fr); gap: 16px; }
+    .contact-details div { font-size: 13px; flex-wrap: wrap; }
+    .services-list div { padding: 28px 20px; }
+  }
+
+  /* ── Mobile small ── */
+  @media (max-width: 480px) {
+    .header { padding: 12px 4%; }
+    .logo { font-size: 22px; }
+    .home, .about, .services-section, .skills-section, .contact-section { padding-left: 4%; padding-right: 4%; }
+    .home-content h1 { font-size: 26px; }
+    .sub-title { font-size: 24px; padding: 50px 0 24px; }
+    .btn-box { padding: 11px 24px; font-size: 14px; }
+    .container1 { padding: 24px 14px; }
+    .heading1 { font-size: 18px; margin-bottom: 28px; }
+    .bar .info span { font-size: 13px; }
+  }
+
+  /* ── Very small phones ── */
+  @media (max-width: 360px) {
+    .home-content h1 { font-size: 22px; }
+    .home-img img { width: 150px; height: 150px; }
+    .about-img img { width: 160px; height: 160px; }
+    .logo { font-size: 20px; }
+    .radial-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+    .contact-wrapper { grid-template-columns: 1fr; }
   }
 `;
 
@@ -162,7 +265,6 @@ const styles = `
    SUB-COMPONENTS
 ───────────────────────────────────────── */
 
-/** Animated radial / circular skill indicator */
 const RadialSkill = ({ percent, label, offset }) => (
   <div className="radial-item">
     <div style={{ position: "relative", width: 130, height: 130 }}>
@@ -181,7 +283,6 @@ const RadialSkill = ({ percent, label, offset }) => (
   </div>
 );
 
-/** Animated horizontal skill bar (intersection-observer driven) */
 const SkillBar = ({ icon, iconColor, label, widthPct }) => {
   const [width, setWidth] = useState("0%");
   const ref = useRef(null);
@@ -210,24 +311,138 @@ const SkillBar = ({ icon, iconColor, label, widthPct }) => {
 };
 
 /* ─────────────────────────────────────────
+   THREE.JS PARTICLE BACKGROUND
+───────────────────────────────────────── */
+const ThreeBackground = () => {
+  const canvasRef = useRef(null);
+
+  useEffect(() => {
+    const script = document.createElement("script");
+    script.src = "https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js";
+    script.onload = () => {
+      const THREE = window.THREE;
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+
+      const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+      renderer.setPixelRatio(window.devicePixelRatio);
+      renderer.setSize(canvas.offsetWidth, canvas.offsetHeight);
+
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(60, canvas.offsetWidth / canvas.offsetHeight, 0.1, 1000);
+      camera.position.z = 5;
+
+      // Particle geometry
+      const count = 800;
+      const positions = new Float32Array(count * 3);
+      for (let i = 0; i < count * 3; i++) {
+        positions[i] = (Math.random() - 0.5) * 20;
+      }
+      const geo = new THREE.BufferGeometry();
+      geo.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+      const mat = new THREE.PointsMaterial({ color: 0x00eeff, size: 0.06, transparent: true, opacity: 0.7 });
+      const points = new THREE.Points(geo, mat);
+      scene.add(points);
+
+      // Lines connecting nearby particles
+      const lineMat = new THREE.LineBasicMaterial({ color: 0x00eeff, transparent: true, opacity: 0.08 });
+      const lineGeo = new THREE.BufferGeometry();
+      const linePositions = [];
+      const posArr = geo.attributes.position.array;
+      for (let i = 0; i < count; i++) {
+        for (let j = i + 1; j < count; j++) {
+          const dx = posArr[i*3] - posArr[j*3];
+          const dy = posArr[i*3+1] - posArr[j*3+1];
+          const dz = posArr[i*3+2] - posArr[j*3+2];
+          if (Math.sqrt(dx*dx+dy*dy+dz*dz) < 1.8) {
+            linePositions.push(posArr[i*3], posArr[i*3+1], posArr[i*3+2]);
+            linePositions.push(posArr[j*3], posArr[j*3+1], posArr[j*3+2]);
+          }
+        }
+      }
+      lineGeo.setAttribute("position", new THREE.BufferAttribute(new Float32Array(linePositions), 3));
+      scene.add(new THREE.LineSegments(lineGeo, lineMat));
+
+      let animId;
+      const animate = () => {
+        animId = requestAnimationFrame(animate);
+        points.rotation.y += 0.0015;
+        points.rotation.x += 0.0005;
+        renderer.render(scene, camera);
+      };
+      animate();
+
+      const onResize = () => {
+        if (!canvas) return;
+        renderer.setSize(canvas.offsetWidth, canvas.offsetHeight);
+        camera.aspect = canvas.offsetWidth / canvas.offsetHeight;
+        camera.updateProjectionMatrix();
+      };
+      window.addEventListener("resize", onResize);
+
+      return () => {
+        cancelAnimationFrame(animId);
+        window.removeEventListener("resize", onResize);
+        renderer.dispose();
+      };
+    };
+    document.head.appendChild(script);
+    return () => { if (script.parentNode) script.parentNode.removeChild(script); };
+  }, []);
+
+  return <canvas ref={canvasRef} id="three-canvas" />;
+};
+
+/* ─────────────────────────────────────────
    SECTION COMPONENTS
 ───────────────────────────────────────── */
 
-/** Header / Navigation */
-const Header = () => (
-  <header className="header">
-    <a href="#" className="logo">Portfolio</a>
-    <nav className="navbar">
-      {["home", "about", "services", "skills", "contact"].map((s, i) => (
-        <a href={`#${s}`} key={s} style={{ "--i": i + 1 }}>
-          {s.charAt(0).toUpperCase() + s.slice(1)}
-        </a>
-      ))}
-    </nav>
-  </header>
-);
+/** Header with hamburger menu */
+const Header = () => {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const navLinks = ["home", "about", "services", "skills", "contact"];
 
-/** Hero / Home section with typewriter effect */
+  const closeMenu = () => setMenuOpen(false);
+
+  return (
+    <>
+      <header className="header">
+        <a href="#" className="logo">Portfolio</a>
+
+        {/* Desktop nav */}
+        <nav className="navbar">
+          {navLinks.map((s, i) => (
+            <a href={`#${s}`} key={s} style={{ "--i": i + 1 }}>
+              {s.charAt(0).toUpperCase() + s.slice(1)}
+            </a>
+          ))}
+        </nav>
+
+        {/* Hamburger button */}
+        <button
+          className={`hamburger${menuOpen ? " open" : ""}`}
+          onClick={() => setMenuOpen(o => !o)}
+          aria-label="Toggle navigation"
+        >
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+      </header>
+
+      {/* Mobile fullscreen nav */}
+      <nav className={`mobile-nav${menuOpen ? " open" : ""}`}>
+        {navLinks.map(s => (
+          <a href={`#${s}`} key={s} onClick={closeMenu}>
+            {s.charAt(0).toUpperCase() + s.slice(1)}
+          </a>
+        ))}
+      </nav>
+    </>
+  );
+};
+
+/** Hero / Home section with Three.js + typewriter */
 const Home = () => {
   const [typedText, setTypedText] = useState("");
 
@@ -253,6 +468,7 @@ const Home = () => {
 
   return (
     <section className="home" id="home">
+      <ThreeBackground />
       <div className="home-content">
         <h3>Hello, It's me</h3>
         <h1>SNEKA MUTHIRULAN</h1>
@@ -267,6 +483,11 @@ const Home = () => {
           I am a passionate Frontend Developer who loves creating beautiful and interactive
           web experiences. Let's build something amazing together!
         </p>
+        <div className="home-sci">
+          <a href="#" style={{ "--i": 1 }}><i className="bx bxl-linkedin"></i></a>
+          <a href="#" style={{ "--i": 2 }}><i className="bx bxl-github"></i></a>
+          <a href="#" style={{ "--i": 3 }}><i className="bx bxl-twitter"></i></a>
+        </div>
         <a href="#about" className="btn-box">More About Me</a>
       </div>
       <div className="home-img">
@@ -338,8 +559,6 @@ const Skills = () => (
     <h1 className="sub-title" id="skills">My <span>Skills</span></h1>
     <section className="skills-section">
       <div className="skills-wrapper">
-
-        {/* Technical skills – bar chart */}
         <div className="container1">
           <h1 className="heading1">Technical Skills</h1>
           <SkillBar icon="bx bxl-html5" iconColor="#c95d2e" label="HTML" widthPct="90%" />
@@ -348,8 +567,6 @@ const Skills = () => (
           <SkillBar icon="bx bxl-react" iconColor="#69bcbc" label="React" widthPct="85%" />
           <SkillBar icon="bx bxl-python" iconColor="#c32ec9" label="Python" widthPct="80%" />
         </div>
-
-        {/* Professional skills – radial chart */}
         <div className="container1">
           <h1 className="heading1">Professional Skills</h1>
           <div className="radial-grid">
@@ -359,20 +576,19 @@ const Skills = () => (
             <RadialSkill percent={75} label="Problem Solving" offset={125} />
           </div>
         </div>
-
       </div>
     </section>
   </>
 );
 
-/** Contact section – uses EmailJS to send messages */
+/** Contact section */
 const Contact = () => {
-  const EMAILJS_SERVICE_ID = 'service_x8bqki7';   // ← replace
-  const EMAILJS_TEMPLATE_ID = 'template_eayoira';  // ← replace
-  const EMAILJS_PUBLIC_KEY = 'jE32NhCz7Ifpp49sD';   // ← replace
+  const EMAILJS_SERVICE_ID = 'service_x8bqki7';
+  const EMAILJS_TEMPLATE_ID = 'template_eayoira';
+  const EMAILJS_PUBLIC_KEY = 'jE32NhCz7Ifpp49sD';
 
   const [formData, setFormData] = useState({ name: "", email: "", subject: "", message: "" });
-  const [status, setStatus] = useState(null);   // null | "sending" | "success" | "error"
+  const [status, setStatus] = useState(null);
 
   const handleChange = (e) =>
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -383,7 +599,6 @@ const Contact = () => {
       return;
     }
     setStatus("sending");
-
     try {
       const res = await fetch("https://api.emailjs.com/api/v1.0/email/send", {
         method: "POST",
@@ -400,7 +615,6 @@ const Contact = () => {
           },
         }),
       });
-
       if (res.ok) {
         setStatus("success");
         setFormData({ name: "", email: "", subject: "", message: "" });
@@ -424,8 +638,6 @@ const Contact = () => {
       <h1 className="sub-title" id="contact">Contact <span>Me</span></h1>
       <section className="contact-section">
         <div className="contact-wrapper">
-
-          {/* Left – contact info */}
           <div className="contact-info">
             <h3>Get In Touch</h3>
             <p>
@@ -442,30 +654,16 @@ const Contact = () => {
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  https://www.linkedin.com/in/sneka-m-305444290/
+                  linkedin.com/in/sneka-m-305444290
                 </a>
               </div>
             </div>
           </div>
-
-          {/* Right – contact form */}
           <div className="contact-form">
-            <input
-              type="text" name="name" placeholder="Your Name" required
-              value={formData.name} onChange={handleChange}
-            />
-            <input
-              type="email" name="email" placeholder="Your Email" required
-              value={formData.email} onChange={handleChange}
-            />
-            <input
-              type="text" name="subject" placeholder="Subject"
-              value={formData.subject} onChange={handleChange}
-            />
-            <textarea
-              name="message" placeholder="Your Message" required
-              value={formData.message} onChange={handleChange}
-            />
+            <input type="text" name="name" placeholder="Your Name" required value={formData.name} onChange={handleChange} />
+            <input type="email" name="email" placeholder="Your Email" required value={formData.email} onChange={handleChange} />
+            <input type="text" name="subject" placeholder="Subject" value={formData.subject} onChange={handleChange} />
+            <textarea name="message" placeholder="Your Message" required value={formData.message} onChange={handleChange} />
             <button onClick={handleSubmit} disabled={status === "sending"}>
               {status === "sending" ? "Sending…" : "Send Message"}
             </button>
@@ -475,7 +673,6 @@ const Contact = () => {
               </div>
             )}
           </div>
-
         </div>
       </section>
     </>
@@ -496,7 +693,6 @@ export default function Portfolio() {
   return (
     <>
       <style>{styles}</style>
-      {/* Icon libraries */}
       <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
       <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
 
